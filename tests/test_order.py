@@ -7,8 +7,9 @@ from sf.api import SF
 from sf.model.contact import ContactInfo
 from sf.model.cargo import CargoDetail
 from sf.model.address import Address
-from autils import randomstr
 import pytest
+
+from .utils import generate_digits, generate
 
 
 class TestOrder(unittest.TestCase):
@@ -16,17 +17,17 @@ class TestOrder(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.sf = SF("QXH", "yxGvL9y1bJj9mRy9rIjZVBK4nokAwxrf", True, 'en')
-        cls.order_no = randomstr.generate_digits(12)
+        cls.order_no = generate_digits(12)
         cls.mail_no = None
 
     def _create_order(self):
         contacts = []
-        sender = ContactInfo("北京市昌平区回龙观天慧园",company="测试公司",mobile="18512345678")
-        receiver = ContactInfo("北京市海淀区新中关大厦A座",company="新东方",mobile="18511223344",contactType=1)
+        sender = ContactInfo("北京市昌平区回龙观天慧园", company="测试公司", mobile="18512345678")
+        receiver = ContactInfo("北京市海淀区新中关大厦A座", company="新东方", mobile="18511223344", contactType=1)
         contacts.append(sender)
         contacts.append(receiver)
         cargo_detail = CargoDetail("测试货物")
-        return self.sf.order.create_order(self.order_no, contacts,[cargo_detail])
+        return self.sf.order.create_order(self.order_no, contacts, [cargo_detail])
 
     def test_1_create_order(self):
         """测试下单"""
@@ -45,7 +46,7 @@ class TestOrder(unittest.TestCase):
 
     def test_4_get_router(self):
         """测试路由信息"""
-        #{'apiErrorMsg': '', 'apiResponseID': '000184DB8E57803FE6AA43A0CAC24D3F', 
+        # {'apiErrorMsg': '', 'apiResponseID': '000184DB8E57803FE6AA43A0CAC24D3F',
         # 'apiResultCode': 'A1000', 'apiResultData': 
         # '{"success":true,"errorCode":"S0000","errorMsg":null,
         # "msgData":{"routeResps":
@@ -53,12 +54,12 @@ class TestOrder(unittest.TestCase):
         # }]}]}}'}
         # 只有先下单 才能拿得到路由信息 否则是空
         contacts = []
-        sender = ContactInfo("北京市昌平区回龙观天慧园",company="测试公司",mobile="18512345678")
-        receiver = ContactInfo("北京市海淀区新中关大厦A座",company="新东方",mobile="18511223344",contactType=1)
+        sender = ContactInfo("北京市昌平区回龙观天慧园", company="测试公司", mobile="18512345678")
+        receiver = ContactInfo("北京市海淀区新中关大厦A座", company="新东方", mobile="18511223344", contactType=1)
         contacts.append(sender)
         contacts.append(receiver)
         cargo_detail = CargoDetail("测试货物")
-        self.sf.order.create_order(randomstr.generate(12), contacts,[cargo_detail])
+        self.sf.order.create_order(generate(12), contacts, [cargo_detail])
         res = self.sf.order.get_route_info(self.order_no)
         self.assertTrue(res['success'], res)
 
@@ -86,7 +87,7 @@ class TestOrder(unittest.TestCase):
                 "masterWaybillNo": res['msgData']['waybillNoInfoList'][0]['waybillNo'],
             }
         ]
-        res = self.sf.sheet.sync_print(f"fm_150_standard_QXH",documents)
+        res = self.sf.sheet.sync_print(f"fm_150_standard_QXH", documents)
         self.assertTrue(len(res[0]), res)
 
     def test_7_get_express_types(self):
@@ -97,10 +98,10 @@ class TestOrder(unittest.TestCase):
         res = self.sf.sheet.get_custom_templates("")
 
     def test_9_query_delivery(self):
-        src_address = Address("北京市","北京市","昌平区","回龙观大街")
-        dest_address = Address("山东省","青岛市","市北区","万达广场")
-        res = self.sf.order.query_delivery(1,src_address, dest_address)
-        self.assertTrue(res['success'],res)
+        src_address = Address("北京市", "北京市", "昌平区", "回龙观大街")
+        dest_address = Address("山东省", "青岛市", "市北区", "万达广场")
+        res = self.sf.order.query_delivery(1, src_address, dest_address)
+        self.assertTrue(res['success'], res)
 
 
 if __name__ == "__main__":
